@@ -1,13 +1,11 @@
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "@/types/types";
-import prisma from "@/lib/prisma";
 
-export async function POST(request: NextRequest) {
-  const { id }: Types.TableReadRequest = await request.json();
-
-  const table = await prisma.lootTable.findUnique({
+export async function GET(request: NextRequest) {
+  const table = await prisma.lootTable.findFirst({
     where: {
-      id,
+      selected: true,
     },
   });
   if (!table) {
@@ -15,8 +13,8 @@ export async function POST(request: NextRequest) {
   }
   const lootItems = await prisma.lootItem.findMany({
     where: {
-      lootTableId: id,
+      lootTableId: table.id,
     },
   });
-  return NextResponse.json({ table, lootItems });
+  return NextResponse.json(lootItems);
 }

@@ -73,20 +73,29 @@ export default function Home() {
                       method: "POST",
                       body: JSON.stringify({ id: table.id }),
                     })
-                      .then((res) => res.json())
+                      .then((res) => res.json() as Promise<LootTable>)
                       .then((data) => {
                         setTables((prevTables) =>
-                          prevTables.map((prevTable) =>
-                            prevTable.id === data.id ? data : prevTable
-                          )
+                          prevTables.map((prevTable) => {
+                            prevTable.id === data.id
+                              ? (data.selected = true)
+                              : (prevTable.selected = false);
+                            return prevTable.id === data.id ? data : prevTable;
+                          })
                         );
                       });
                   }}
                 >
                   Select
                 </button>
+                <a
+                  className="bg-green-500 text-white px-4 py-2 mx-5 rounded"
+                  href={`/loot/${table.id}`}
+                >
+                  Update
+                </a>
                 <button
-                  className="bg-slate-500 text-white px-4 py-2 rounded"
+                  className="bg-red-500 text-white px-4 py-2 mx-5 rounded"
                   onClick={() => {
                     fetch("/api/table-crud/delete", {
                       method: "POST",
@@ -107,17 +116,21 @@ export default function Home() {
               </td>
             </tr>
           ))}
-          <tr className="hover:bg-slate-50 bg-gray-500">
+          <tr className="bg-gray-500">
             <td>
               <input
                 type="text"
                 value={newTableName}
+                placeholder="Loot Table Name"
+                className="text-black"
                 onChange={(e) => setNewTableName(e.target.value)}
               />
             </td>
             <td>
               <input
                 type="text"
+                placeholder="Loot Table Description"
+                className="text-black"
                 value={newTableDescription}
                 onChange={(e) => setNewTableDescription(e.target.value)}
               />
